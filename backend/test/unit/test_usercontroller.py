@@ -52,10 +52,11 @@ class TestGetUserByEmail:
         with pytest.raises(Exception):
             ret_val = uc.get_user_by_email(TestGetUserByEmail.VALID_EMAIL)
 
-    def test_getuserbyemail_2matchuser(self):
+    def test_getuserbyemail_2matchuser(self, capsys):
         """
         If valid e-mail is passed and there are 2 matching users found, 
-        the first of these users (dict) is returned.
+        the first of these users (dict) is returned, and an error is printed
+        to stdout.
         """
         dao_mock: mock.Mock = mock.Mock(DAO)
         dao_mock.find.return_value = [
@@ -64,7 +65,9 @@ class TestGetUserByEmail:
         ]
         uc: UserController = UserController(dao_mock)
         ret_val = uc.get_user_by_email(TestGetUserByEmail.VALID_EMAIL)
+        captured_std = capsys.readouterr()
         assert ret_val is TestGetUserByEmail.VALID_EMAIL_MATCHUSER1
+        assert TestGetUserByEmail.VALID_EMAIL in captured_std.out
 
     def test_getuserbyemail_1matchuser(self):
         """
