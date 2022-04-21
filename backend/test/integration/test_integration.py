@@ -12,32 +12,32 @@ class TestDatabase:
 
     @pytest.fixture
     def sut(self):
-        fabricatedFileName = './src/static/validators/test.json'
+        fabricated_file_name = './src/static/validators/test.json'
         self.json_string = {
-                "$jsonSchema": {
-                    "bsonType": "object",
-                    "required": ["name", "bool"],
-                    "properties": {
-                        "name": {
-                            "bsonType": "string",
-                            "description": "user's name",
-                            "uniqueItems": True
-                        },
-                        "bool" : {
-                            "bsonType": "bool",
-                            "description": "true or false"
-                        }
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["name", "bool"],
+                "properties": {
+                    "name": {
+                        "bsonType": "string",
+                        "description": "user's name",
+                        "uniqueItems": True
+                    },
+                    "bool" : {
+                        "bsonType": "bool",
+                        "description": "true or false"
                     }
                 }
             }
-        with open(fabricatedFileName, 'w') as outfile:
+        }
+        with open(fabricated_file_name, 'w') as outfile:
             json.dump(self.json_string, outfile)
 
         # yield instead of return the system under test
         yield DAO(collection_name="test")
 
         # clean up the file after all tests have run
-        os.remove(fabricatedFileName)
+        os.remove(fabricated_file_name)
 
         #remove the collection
         myclient = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -63,7 +63,7 @@ class TestDatabase:
         ret_val = sut.create(TestDatabase.VALID_OBJ)
         assert ret_val["name"] == TestDatabase.VALID_NAME
     
-    def test_create_Double(self, sut):
+    def test_create_double(self, sut):
         """
         If a non-unique value is passed for uniqueItems field, a WriteError is raised.  
         """
