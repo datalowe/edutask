@@ -2,10 +2,9 @@ import pytest
 import json, os
 import pymongo
 
-from src.util.dao import DAO
+from pymongo.errors import WriteError as PymongoWriteError
 
-class WriteError(Exception):
-    pass
+from src.util.dao import DAO
 
 @pytest.mark.integration
 class TestDatabase:
@@ -68,5 +67,5 @@ class TestDatabase:
         If a non-unique value is passed for uniqueItems field, a WriteError is raised.  
         """
         sut.create(TestDatabase.VALID_OBJ)
-        with pytest.raises(WriteError):
+        with pytest.raises(PymongoWriteError):
             sut.create(TestDatabase.VALID_OBJ)
