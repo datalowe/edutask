@@ -82,16 +82,10 @@ class TestDatabase:
 
     def test_create_dict_return(self, sut):
         """
-        If a valid data object is passed, a new entry is created and the object is returned.  
+        Table ID 5: If a valid data object is passed, a new entry is created and the object is returned.  
         """
         ret_val = sut.create(VALID_OBJ1)
         assert type(ret_val) == dict
-
-    def test_create_name_correct(self, sut):
-        """
-        If a valid data object is passed, a new entry is created and the object is returned.  
-        """
-        ret_val = sut.create(VALID_OBJ1)
         assert ret_val["name"] == VALID_NAME1
     
     @pytest.mark.parametrize(
@@ -104,7 +98,7 @@ class TestDatabase:
     )
     def test_create_duplicated_uniqueitems(self, obj1, obj2, should_raise_error, sut):
         """
-        If a non-unique value is passed for uniqueItems string field or uniqueItems bool field,
+        Table ID 4: If a non-unique value is passed for uniqueItems string field or uniqueItems bool field,
         a WriteError is raised.
         """
         sut.create(obj1)
@@ -119,7 +113,7 @@ class TestDatabase:
     
     def test_create_invalidbool(self, sut):
         """
-        Upon attempt to create an object with non-valid boolean values, a WriteError is
+        Table ID 3: Upon attempt to create an object with non-valid boolean values, a WriteError is
         thrown (bubbled up).
         """
         with pytest.raises(PMWriteError):
@@ -127,7 +121,7 @@ class TestDatabase:
     
     def test_create_incomplete(self, sut):
         """
-        Upon attempt to create an object not having values for all required field, a WriteError is
+        Table ID 2: Upon attempt to create an object not having values for all required field, a WriteError is
         thrown (bubbled up).
         """
         with pytest.raises(PMWriteError):
@@ -135,7 +129,7 @@ class TestDatabase:
 
     def test_create_onlyrequired(self, sut):
         """
-        When creating object with all required, but not all optional, fields filled out,
+        Table ID 5: When creating object with all required, but not all optional, fields filled out,
         a new entry is created and a Python representation of it is returned.
         """
         ret_val = sut.create(VALID_OBJ_ONLYREQUIRED)
@@ -143,7 +137,7 @@ class TestDatabase:
 
     def test_create_connectionlost(self, sut_dbconnfailonwrite):
         """
-        If pymongo throws a ConnectionFailure error (db connection lost) when trying to
+        Table ID 1: If pymongo throws a ConnectionFailure error (db connection lost) when trying to
         write to db, this error is bubbled up.
         """
         with pytest.raises(PMConnectionFailure):

@@ -22,7 +22,7 @@ class TestGetUserByEmail:
 
     def test_getuserbyemail_invalidemail(self):
         """
-        If invalid e-mail is passed, ValueError is raised.
+        Table ID 1: If invalid e-mail is passed, ValueError is raised.
         """
         dao_mock: mock.Mock = mock.MagicMock()
         uc: UserController = UserController(dao_mock)
@@ -31,7 +31,7 @@ class TestGetUserByEmail:
     
     def test_getuserbyemail_nomatchuser(self):
         """
-        If valid e-mail is passed, but there is no matching user found, 
+        Table ID 3: If valid e-mail is passed, but there is no matching user found, 
         None is returned.
         """
         dao_mock: mock.Mock = mock.Mock(DAO)
@@ -43,7 +43,7 @@ class TestGetUserByEmail:
     @pytest.mark.unit
     def test_getuserbyemail_dbdown(self):
         """
-        If valid e-mail is passed, but the database connection is broken (ie
+        Table ID 2: If valid e-mail is passed, but the database connection is broken (ie
         DAO instance throws an exception), an exception is thrown.
         """
         dao_mock: mock.Mock = mock.Mock(DAO)
@@ -54,7 +54,7 @@ class TestGetUserByEmail:
 
     def test_getuserbyemail_2matchuser(self, capsys):
         """
-        If valid e-mail is passed and there are 2 matching users found, 
+        Table ID 4: If valid e-mail is passed and there are 2 matching users found, 
         the first of these users (dict) is returned, and an error is printed
         to stdout.
         """
@@ -71,7 +71,7 @@ class TestGetUserByEmail:
 
     def test_getuserbyemail_1matchuser(self):
         """
-        If valid e-mail is passed and there is 1 matching user found, 
+        Table ID 5: If valid e-mail is passed and there is 1 matching user found, 
         the user (dict) is returned.
         """
         dao_mock: mock.Mock = mock.Mock(DAO)
