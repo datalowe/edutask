@@ -1,62 +1,77 @@
 describe('Logging into the system', () => {
+    const doneItem = "Done item";
+    const newItem = "New item";
     const user = {
-        "email": "mon.doe@gmail.com",
-        "firstName": "Mon",
-        "lastName": "Doe"
+        email: "jane.doe@gmail.com",
+        firstName: "Jane",
+        lastName: "Doe"
     }
     const task = {
-        "title": "Introduction to Bayesian Data Analysis",
-        "description": "Learn about Bayesian Data Analysis from Richard McElreath",
-        "url": "cclUd_HoRlo",
-        "todos": "Watch video"
+        title: "Top 10 best cat videos of all time",
+        description: "Don't learn anything, just enjoy",
+        url: "cbP2N1BQdYc",
+        todos: newItem
     }
+
+    const backendUrl = 'http://localhost:5000'
     
     beforeEach(function() {
         // create a fabricated user from a fixture
         cy.request({
             method: 'POST',
-            url: 'http://localhost:5000/users/create',
+            url: `${backendUrl}/users/create`,
             form: true,
             body: user
         }).then((response) => {
             this.uid = response.body._id.$oid
 
             task.userid = this.uid
+                    // Creates a new task
                     cy.request({
                         method: 'POST',
-                        url: 'http://localhost:5000/tasks/create',
+                        url: `${backendUrl}/tasks/create`,
                         form: true,
                         body: task
                     }).then((response) => {
-                        this.tid = response.body[0].todos[0]._id.$oid
-                        cy.log(this.tid)
-                    }).then(() => {
-                        // Här ska requesten ligga
-                        // cy.request({
-                        //     method: 'PUT',
-                        //     url: `http://localhost:5000/todos/byid/${this.tid}`,
-                        //     body: {'done': true},
-                        // });
+                        // Creates a new todo item
+                        cy.request({
+                            method: 'POST',
+                            url: `${backendUrl}/todos/create`,
+                            body: {
+                                'taskid': response.body[0]._id.$oid,
+                                'description': doneItem
+                            },
+                            form: true
+                        }).then((response) => {
+                            // Toggles todo item to 'done'
+                            cy.request({
+                                method: 'PUT',
+                                url: `${backendUrl}/todos/byid/${response.body._id.$oid}`,
+                                body: {'data': `{'$set': {'done': true}}`},
+                                form: true
+                            }).then((response) => {
+                                cy.log(response.body)
+
+                                // Visits page
+                                cy.visit('http://localhost:3000')
+                                cy.contains('div', 'Email Address')
+                                    .find('input')
+                                    .type(user.email)
+                                cy.get('form')
+                                    .submit()
+                                cy.get('img').first()
+                                .click()
+                            })
+                            
+                        })
                     })
         })
-        cy.visit('http://localhost:3000')
-        cy.contains('div', 'Email Address')
-            .find('input')
-            .type(user.email)
-        cy.get('form')
-            .submit()
-        cy.get('img').first()
-        .click()
     })
 
     afterEach(function() {
         // clean up by deleting the user from the database
-        // Obs denna funkar inte! Tar med bodyn från föregående request bl a :) :)
-        cy.request({
-            method: 'DELETE',
-            url: `http://localhost:5000/users/${this.uid}`
-        }).then((response) => {
-            cy.log(response.body)
+        cy.request('GET', `${backendUrl}/users/bymail/${user.email}`).then((uData) => {
+            cy.request('DELETE', `${backendUrl}/users/${uData.body._id.$oid}`)
         })
     })
 
@@ -103,28 +118,18 @@ describe('Logging into the system', () => {
 
       // R8UC2 #1
     it('sets active item to done', () => {
-        let text = "New todo item to check"
-        cy.get('input[placeholder="Add a new todo item"]')
-        .type(text, { force: true })
-        cy.contains('input', 'Add')
-        .click()
+        cy.get('li.todo-item').contains(newItem).parent().find('.checker').click()
+        cy.wait(1000)
         .then(() => {
-            cy.get('ul').find('.todo-item:last').find('.checker').click()
-            cy.get('.todo-item:last').find('.editable').should('have.css', 'text-decoration').and('match', /line-through/)
+            cy.get('li.todo-item').contains(newItem).should('have.css', 'text-decoration').and('match', /line-through/)
         })
     })
 
     // R8UC2 #2
     it('sets done item to active after', () => {
-        let text = "New todo item to check"
-        cy.get('input[placeholder="Add a new todo item"]')
-        .type(text, { force: true })
-        cy.contains('input', 'Add').parent()
-        .submit()
+        cy.get('li.todo-item').contains(doneItem).parent().find('.checker').click()
         .then(() => {
-            cy.get('ul').find('.todo-item:last').find('.checker').click()
-            cy.get('ul').find('.todo-item:last').find('.checker').click()
-            cy.get('.todo-item:last').find('.editable').not('have.css', 'text-decoration')
+            cy.get('li.todo-item').contains(doneItem).not('have.css', 'text-decoration')
         })
     })
 
