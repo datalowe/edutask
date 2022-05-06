@@ -128,8 +128,15 @@ describe('Logging into the system', () => {
     // R8UC2 #2
     it('sets done item to active after', () => {
         cy.get('li.todo-item').contains(doneItem).parent().find('.checker').click()
-        .then(() => {
-            cy.get('li.todo-item').contains(doneItem).not('have.css', 'text-decoration')
+        cy.wait(50)
+            .then(() => {
+            cy
+                .get('li.todo-item')
+                .contains(doneItem)
+                .should('have.css', 'text-decoration')
+                // ugly 'negative match' regex (couldn't find how to do
+                // a 'negative match' with chai/cypress API)
+                .and('match', /^((?!line-through).)*$/)
         })
     })
 
